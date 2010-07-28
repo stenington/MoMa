@@ -1,0 +1,82 @@
+#!/usr/coderyte/bin/perl
+
+#use Getopt::Long;
+use Pod::Usage;
+use App::Moma qw(parse build_cmd);
+
+my %portnames = (
+  l => "VGA-0",
+  r => "DVI-0",
+  i => "LVDS",
+); 
+
+my %modes = (
+  "LVDS" => "1280x1024",
+);
+
+#my %opts = (
+#);
+#GetOptions(\%opts, 
+#  "on",
+#  "off",
+#);
+
+my $monstr = $ARGV[0];
+chomp $monstr;
+pod2usage(1) unless $monstr =~ /^([+-][lri]+){1,2}$/; 
+
+my ($on, $off) = parse($monstr);;
+my @ports_on;
+my @ports_off;
+foreach my $mon (split(//, $on)) {
+  push @ports_on, $portnames{$mon} if $portnames{$mon};
+}
+foreach my $mon (split(//, $off)) {
+  push @ports_off, $portnames{$mon} if $portnames{$mon};
+}
+my $cmd = build_cmd(\@ports_on, \@ports_off, \%modes);
+print "I'm gonna call [$cmd]!\n";
+my $err = system $cmd;
+if( $err ){
+  print "That didn't work, sorry.\n";
+}
+
+__END__
+
+=head1 moma : MOnitor MAnager
+
+ _______
+|,----__|___
+||  |,-----.|   moma - switch monitor sets, nice and easy
+|`--||     ||
+ ``||`-----`|
+  ~~~``| |`` 
+      ~~~~~
+
+=head1 SYNOPSIS
+
+moma [--help] monitor_string
+
+  Options:
+    None yet.
+
+  Format:
+    (+|-)m[n...](+|-)x[y...]
+    +m[n...]      turn on
+    -m[n...]      turn off
+
+  ...where valid identifiers are:
+    l       left external monitor
+    r       right external monitor
+    i       internal laptop screen
+
+  Examples:
+    +lr-i   dual external monitors
+    -l      turn off left monitor
+    +i      turn on laptop screen
+
+=head1 DESCRIPTION
+
+B<This program> will toggle the desired set of monitors. 
+
+=cut

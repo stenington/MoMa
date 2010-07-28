@@ -1,0 +1,40 @@
+App-Moma
+
+This is a super-pre-early-pre-alpha. I use it on one machine. It works 
+there. If you want to use it, great! If it breaks, which I would not
+be surprised to hear, you can let me know and I'll see what I can do.
+
+For this release config is hard-coded, and this utility just shells out
+to xrandr to do the real magic.
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Makefile.PL
+	make
+	make test
+	make install
+
+DEPENDENCIES
+
+At the very least, you need xrandr to be installed.
+
+SUPPORT AND DOCUMENTATION
+
+After installing, you can find documentation for this module with the
+perldoc command.
+
+    perldoc App::Moma
+
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2010 Mike Larsson
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
+

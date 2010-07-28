@@ -1,0 +1,10 @@
+Changes
+MANIFEST
+Makefile.PL
+README
+lib/App/Moma.pm
+t/00-load.t
+t/pod-coverage.t.x
+t/pod.t
+t/moma.t
+bin/moma
