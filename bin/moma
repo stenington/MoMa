@@ -26,18 +26,21 @@ __END__
 
 moma [--help] monitor_string
 
-  Options:
-    None yet.
-
   Format:
     (+|-)m[n...](+|-)x[y...]
-    +m[n...]      turn on
-    -m[n...]      turn off
+    +m[n...]      turn on m, n, etc.
+    -m[n...]      turn off m, n, etc.
 
-  ...where valid identifiers are:
-    l       left external monitor
-    r       right external monitor
-    i       internal laptop screen
+  ...where valid identifiers (m, n, etc.) are defined in your ~/.moma file:
+    +-----------------+
+    |  [identifiers]  |
+    |  l=VGA-0        |
+    |  r=DVI-0        |
+    |  i=LVDS         |
+    |                 |
+    |  [modes]        |
+    |  LVDS=1280x1024 |
+    +-----------------+
 
   Examples:
     +lr-i   dual external monitors

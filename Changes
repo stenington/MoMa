@@ -1,5 +1,9 @@
 Revision history for App-Moma
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+0.0.2     2010-07-29
+          ~/.moma config added with Config::Tiny
+          Moosified
+
+0.0.1     2010-07-28
+          First version, released on an unsuspecting world.
 

@@ -4,8 +4,7 @@ This is a super-pre-early-pre-alpha. I use it on one machine. It works
 there. If you want to use it, great! If it breaks, which I would not
 be surprised to hear, you can let me know and I'll see what I can do.
 
-For this release config is hard-coded, and this utility just shells out
-to xrandr to do the real magic.
+For this release this utility just shells out to xrandr to do the real magic.
 
 INSTALLATION
 

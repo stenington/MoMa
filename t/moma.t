@@ -12,9 +12,13 @@ isa_ok($app, 'App::Moma', "new");
 ok( !$app->parse_args("123"), "bad args fail" );
 $app->load_rc("t/.moma"); # without this, no identifiers would be valid
 ok( $app->parse_args("+lr"), "good args don't" );
+ok( $app->parse_args("+lrx"), "mixed good and bad fails" );
 is( 1, $app->parse_args("+r"), "returns arg count" );
 is( 2, $app->parse_args("+r-l"), "returns arg count; doesn't accumulate" );
 is( 3, $app->parse_args("+ri-l"), "returns arg count" );
+$app->load_rc("t/.moma2"); # different set of identifiers
+ok( $app->parse_args("+abc"), "new identifiers loaded" );
+ok( !$app->parse_args("+lri"), "old identifiers removed" );
 
 ### Converted procedural tests
 
