@@ -12,6 +12,8 @@ WriteMakefile(
     PL_FILES            => {},
     PREREQ_PM => {
         'Test::More' => 0,
+        'Config::Tiny' => 0,
+        'Moose' => 0,
     },
     EXE_FILES           => ['bin/moma'],
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
