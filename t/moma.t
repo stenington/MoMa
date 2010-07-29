@@ -4,33 +4,45 @@ use strict;
 use warnings;
 
 use Test::More 'no_plan';
-use App::Moma qw(parse build_cmd);
+use App::Moma;
 
-my ($on, $off) = parse("+lri");
+my $app = App::Moma->new();
+isa_ok($app, 'App::Moma', "new");
+
+ok( !$app->parse_args("123"), "bad args fail" );
+$app->load_rc("t/.moma"); # without this, no identifiers would be valid
+ok( $app->parse_args("+lr"), "good args don't" );
+is( 1, $app->parse_args("+r"), "returns arg count" );
+is( 2, $app->parse_args("+r-l"), "returns arg count; doesn't accumulate" );
+is( 3, $app->parse_args("+ri-l"), "returns arg count" );
+
+### Converted procedural tests
+
+my ($on, $off) = App::Moma::_parse("+lri");
 is( $on, "lri", "all on" );
-is( $off, undef, "off undefined");
+is( $off, "", "off empty");
 
-($on, $off) = parse("-lri");
-is( $on, undef, "on undefined");
+($on, $off) = App::Moma::_parse("-lri");
+is( $on, "", "on empty");
 is( $off, "lri", "all off" );
 
-($on, $off) = parse("+lr-i");
+($on, $off) = App::Moma::_parse("+lr-i");
 is( $on, "lr", "some on" );
 is( $off, "i", "some off");
 
-($on, $off) = parse("+a+b-x-y");
+($on, $off) = App::Moma::_parse("+a+b-x-y");
 is( $on, "ab", "extraneous +'s parse" );
 is( $off, "xy", "extraneous -'s parse" );
 
 # no modes specified
-is( build_cmd(["a"], undef, {}), "xrandr --output a --auto ", "one on (undef)" );
-is( build_cmd(["a"], [], {}), "xrandr --output a --auto ", "one on" );
-is( build_cmd([], ["a"], {}), "xrandr --output a --off ", "one off" );
-is( build_cmd(["a"], ["b"], {}), "xrandr --output a --auto --output b --off ", "one on, one off" );
-like( build_cmd(["a", "b"], ["c", "d"], undef), qr/--output a --auto --output b --auto.*--output c --off --output d --off/, "two on, two off" );
+is( App::Moma::_build_cmd(["a"], undef, {}), "xrandr --output a --auto ", "one on (undef)" );
+is( App::Moma::_build_cmd(["a"], [], {}), "xrandr --output a --auto ", "one on" );
+is( App::Moma::_build_cmd([], ["a"], {}), "xrandr --output a --off ", "one off" );
+is( App::Moma::_build_cmd(["a"], ["b"], {}), "xrandr --output a --auto --output b --off ", "one on, one off" );
+like( App::Moma::_build_cmd(["a", "b"], ["c", "d"], undef), qr/--output a --auto --output b --auto.*--output c --off --output d --off/, "two on, two off" );
 
-is( build_cmd(["a", "b"], [], undef), "xrandr --output a --auto --output b --auto --right-of a ", "two on, b right of a" );
+is( App::Moma::_build_cmd(["a", "b"], [], undef), "xrandr --output a --auto --output b --auto --right-of a ", "two on, b right of a" );
 
 # modes
-is( build_cmd(["a"], undef, {a => "1280x1024"}), "xrandr --output a --mode 1280x1024 ", "screen mode specified" );
+is( App::Moma::_build_cmd(["a"], undef, {a => "1280x1024"}), "xrandr --output a --mode 1280x1024 ", "screen mode specified" );
 

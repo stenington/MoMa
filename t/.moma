@@ -1,0 +1,7 @@
+[identifiers]
+l=VGA-0
+r=DVI-0
+i=LVDS
+
+[modes]
+LVDS=1280x1024

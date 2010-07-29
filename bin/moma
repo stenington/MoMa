@@ -1,45 +1,14 @@
-#!/usr/coderyte/bin/perl
+#!/usr/bin/perl
 
-#use Getopt::Long;
 use Pod::Usage;
-use App::Moma qw(parse build_cmd);
+use App::Moma;
 
-my %portnames = (
-  l => "VGA-0",
-  r => "DVI-0",
-  i => "LVDS",
-); 
-
-my %modes = (
-  "LVDS" => "1280x1024",
-);
-
-#my %opts = (
-#);
-#GetOptions(\%opts, 
-#  "on",
-#  "off",
-#);
+my $app = App::Moma->new();
+$app->load_rc( "~/.moma" );
 
 my $monstr = $ARGV[0];
-chomp $monstr;
-pod2usage(1) unless $monstr =~ /^([+-][lri]+){1,2}$/; 
-
-my ($on, $off) = parse($monstr);;
-my @ports_on;
-my @ports_off;
-foreach my $mon (split(//, $on)) {
-  push @ports_on, $portnames{$mon} if $portnames{$mon};
-}
-foreach my $mon (split(//, $off)) {
-  push @ports_off, $portnames{$mon} if $portnames{$mon};
-}
-my $cmd = build_cmd(\@ports_on, \@ports_off, \%modes);
-print "I'm gonna call [$cmd]!\n";
-my $err = system $cmd;
-if( $err ){
-  print "That didn't work, sorry.\n";
-}
+pod2usage(1) unless $monstr && $app->parse_args( $monstr );
+$app->run();
 
 __END__
 
