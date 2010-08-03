@@ -20,6 +20,17 @@ has 'ports_off' => (
   default => sub{ [] },
 );
 
+has '_config_file' => (
+  is => 'rw',
+  isa => 'Str',
+);
+
+has '_config' => (
+  is => 'ro',
+  isa => 'Config::Tiny',
+  writer => '_set_config',
+);
+
 has 'modes' => (
   is => 'rw',
   isa => 'HashRef[Str]',
@@ -44,7 +55,26 @@ sub load_rc {
   my $cfg = Config::Tiny->read( $cfgfile ) or die "Unable to load $cfgfile: " . Config::Tiny::errstr;
   $self->portnames($cfg->{identifiers}) if $cfg->{identifiers};
   $self->modes($cfg->{modes}) if $cfg->{modes};
+
+  $self->_set_config( $cfg );
+  $self->_config_file( $cfgfile );
   return 1;
+}
+
+sub print_config {
+  my ($self) = @_;
+  _boxify( $self->_config_file );
+  print "\n";
+  print $self->_config->write_string;
+  print "\n";
+}
+
+sub _boxify {
+  my ($str) = @_;
+  my $len = (length $str) + 2;
+  print "+" . "-" x $len . "+\n";
+  print "| " . $str . " |\n";
+  print "+" . "-" x $len . "+\n";
 }
 
 sub parse_args {
@@ -62,7 +92,7 @@ sub _map_to_portnames {
   my ($self, $ids) = @_;
   my $portnames = [];
   foreach my $mon (split(//, $ids)) {
-    die "Unknown identifier: $mon\n" unless $self->portnames->{$mon};
+    die "Unknown identifier $mon" unless $self->portnames->{$mon};
     push @$portnames, $self->portnames->{$mon};
   }
   return $portnames;
@@ -72,7 +102,7 @@ sub _parse {
   my ($self, $str) = @_; 
   my $on = "";
   my $off = "";
-  die "Bad format: $str\n" unless $str =~ /^(?:[+-][a-zA-Z]+)+$/;
+  die "Bad format" unless $str =~ /^(?:[+-][a-zA-Z]+)+$/;
   while ($str =~ /[+]([a-zA-Z]+)/g) {
     $on .= $1;
   }
@@ -102,7 +132,7 @@ sub _build_cmd {
     if( $prev ){
       $cmd .= "--right-of $prev ";
     }
-    $prev = $mon
+    $prev = $mon;
   }
   foreach my $mon (@$off) {
     $cmd .= "--output $mon --off ";

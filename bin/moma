@@ -2,26 +2,55 @@
 
 use Pod::Usage;
 use App::Moma;
-use Getopt::Long qw(:config no_auto_abbrev no_getopt_compat auto_help auto_version prefix=--);
+use Getopt::Long qw(:config no_auto_abbrev no_getopt_compat prefix=--);
+use TryCatch;
 
 my %opts = ();
 GetOptions(
-  %opts,
+  \%opts,
+  "help",
+  "config",
 );
 
+pod2usage({ 
+  -message => "Help statement: ",
+  -exitval => 0,
+  -verbose => 1, 
+}) if $opts{help};
+
 my $app = App::Moma->new();
-unless( $app->load_rc( "~/.moma" ) ){
-  print STDERR "No configuration found at ~/.moma\n";
-  pod2usage(1);
+try {
+  $app->load_rc( "~/.moma" );
+}
+catch ($err) {
+  pod2usage({
+    -message => "No configuration found at ~/.moma",
+    -exitval => 1,
+    -verbose => 1,
+  });
 }
 
-my $monstr = $ARGV[0];
-pod2usage(1) unless $monstr;
-unless( $app->parse_args( $monstr ) ){
-  print STDERR "Argument $monstr didn't parse\n";
-  pod2usage(1);
+if( $opts{config} ){
+  $app->print_config;
 }
-$app->run();
+else {
+  my $monstr = $ARGV[0];
+  pod2usage({
+    -exitval => 1, 
+    -verbose => 0,
+  }) unless $monstr;
+  try {
+    $app->parse_args( $monstr );
+  }
+  catch ($err) {
+    pod2usage({
+      -message => "Argument $monstr didn't parse: $err",
+      -exitval => 1,
+      -verbose => 0,
+    });
+  }
+  $app->run();
+}
 
 __END__
 
@@ -37,28 +66,50 @@ __END__
 
 =head1 SYNOPSIS
 
-moma [--help] monitor_string
+moma [--help|--config] monitor_string
 
   Format:
     (+|-)m[n...](+|-)x[y...]
     +m[n...]      turn on m, n, etc.
     -m[n...]      turn off m, n, etc.
 
-  ...where valid identifiers (m, n, etc.) are defined in your ~/.moma file:
-    +-----------------+
-    |  [identifiers]  |
-    |  l=VGA-0        |
-    |  r=DVI-0        |
-    |  i=LVDS         |
-    |                 |
-    |  [modes]        |
-    |  LVDS=1280x1024 |
-    +-----------------+
+  ...where valid identifiers (m, n, etc.) are defined 
+  in your ~/.moma file. (See --config option for details.)
+
+  +mn... assumes n to the right of m (not mirroring).
 
   Examples:
     +lr-i   dual external monitors
     -l      turn off left monitor
     +i      turn on laptop screen
+
+  Options:
+    help      Displays this help message
+    config    Displays the active configuration as above
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--help>
+
+Print a brief help message and exit.
+
+=item B<--config>
+
+Print the active configuration and exit. This should be defined in ~/.moma similarly to the following:
+
+  +-----------------+
+  |  [identifiers]  |
+  |  l=VGA-0        |
+  |  r=DVI-0        |
+  |  i=LVDS         |
+  |                 |
+  |  [modes]        |
+  |  LVDS=1280x1024 |
+  +-----------------+
+
+=back
 
 =head1 DESCRIPTION
 
