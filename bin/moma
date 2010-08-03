@@ -2,12 +2,25 @@
 
 use Pod::Usage;
 use App::Moma;
+use Getopt::Long qw(:config no_auto_abbrev no_getopt_compat auto_help auto_version prefix=--);
+
+my %opts = ();
+GetOptions(
+  %opts,
+);
 
 my $app = App::Moma->new();
-$app->load_rc( "~/.moma" );
+unless( $app->load_rc( "~/.moma" ) ){
+  print STDERR "No configuration found at ~/.moma\n";
+  pod2usage(1);
+}
 
 my $monstr = $ARGV[0];
-pod2usage(1) unless $monstr && $app->parse_args( $monstr );
+pod2usage(1) unless $monstr;
+unless( $app->parse_args( $monstr ) ){
+  print STDERR "Argument $monstr didn't parse\n";
+  pod2usage(1);
+}
 $app->run();
 
 __END__

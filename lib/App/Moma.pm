@@ -35,17 +35,21 @@ has 'portnames' => (
 sub load_rc {
   my ($self, $cfgfile) = @_;
 
-  $cfgfile = $ENV{HOME} . "/.moma" unless $cfgfile;
-  $cfgfile =~ s/^~/$ENV{HOME}/;
-  return unless -f $cfgfile;
+  unless( $cfgfile ){
+    $cfgfile = $ENV{HOME} . "/.moma";
+    return 0 unless -f $cfgfile;
+  }
 
+  $cfgfile =~ s/^~/$ENV{HOME}/;
   my $cfg = Config::Tiny->read( $cfgfile ) or die "Unable to load $cfgfile: " . Config::Tiny::errstr;
   $self->portnames($cfg->{identifiers}) if $cfg->{identifiers};
   $self->modes($cfg->{modes}) if $cfg->{modes};
+  return 1;
 }
 
 sub parse_args {
   my ($self, $str) = @_;
+  $DB::single=1;
   my ($on, $off) = $self->_parse($str);
   my $ports_on = $self->_map_to_portnames( $on );
   my $ports_off = $self->_map_to_portnames( $off );
@@ -58,7 +62,8 @@ sub _map_to_portnames {
   my ($self, $ids) = @_;
   my $portnames = [];
   foreach my $mon (split(//, $ids)) {
-    push @$portnames, $self->portnames->{$mon} if $self->portnames->{$mon};
+    die "Unknown identifier: $mon\n" unless $self->portnames->{$mon};
+    push @$portnames, $self->portnames->{$mon};
   }
   return $portnames;
 }
@@ -67,6 +72,7 @@ sub _parse {
   my ($self, $str) = @_; 
   my $on = "";
   my $off = "";
+  die "Bad format: $str\n" unless $str =~ /^(?:[+-][a-zA-Z]+)+$/;
   while ($str =~ /[+]([a-zA-Z]+)/g) {
     $on .= $1;
   }
