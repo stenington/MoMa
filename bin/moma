@@ -19,12 +19,13 @@ pod2usage({
 }) if $opts{help};
 
 my $app = App::Moma->new();
+my $cfg = "~/.moma";
 try {
-  $app->load_rc( "~/.moma" );
+  $app->load_rc( $cfg );
 }
 catch ($err) {
   pod2usage({
-    -message => "No configuration found at ~/.moma",
+    -message => "No configuration found at $cfg",
     -exitval => 1,
     -verbose => 1,
   });
