@@ -36,6 +36,7 @@ sub load_rc {
   my ($self, $cfgfile) = @_;
 
   $cfgfile = $ENV{HOME} . "/.moma" unless $cfgfile;
+  $cfgfile =~ s/^~/$ENV{HOME}/;
   return unless -f $cfgfile;
 
   my $cfg = Config::Tiny->read( $cfgfile ) or die "Unable to load $cfgfile: " . Config::Tiny::errstr;
@@ -45,22 +46,25 @@ sub load_rc {
 
 sub parse_args {
   my ($self, $str) = @_;
-  my ($on, $off) = _parse($str);
-  my $ports_on = [];
-  my $ports_off = [];
-  foreach my $mon (split(//, $on)) {
-    push @$ports_on, $self->portnames->{$mon} if $self->portnames->{$mon};
-  }
-  foreach my $mon (split(//, $off)) {
-    push @$ports_off, $self->portnames->{$mon} if $self->portnames->{$mon};
-  }
+  my ($on, $off) = $self->_parse($str);
+  my $ports_on = $self->_map_to_portnames( $on );
+  my $ports_off = $self->_map_to_portnames( $off );
   $self->ports_on( $ports_on );
   $self->ports_off( $ports_off );
   return @{$self->ports_on} + @{$self->ports_off};
 }
 
+sub _map_to_portnames {
+  my ($self, $ids) = @_;
+  my $portnames = [];
+  foreach my $mon (split(//, $ids)) {
+    push @$portnames, $self->portnames->{$mon} if $self->portnames->{$mon};
+  }
+  return $portnames;
+}
+
 sub _parse {
-  my ($str) = @_; 
+  my ($self, $str) = @_; 
   my $on = "";
   my $off = "";
   while ($str =~ /[+]([a-zA-Z]+)/g) {
