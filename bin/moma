@@ -10,6 +10,7 @@ GetOptions(
   \%opts,
   "help",
   "config",
+  "checkconfig",
   "verbose"
 );
 
@@ -35,6 +36,9 @@ catch ($err) {
 
 if( $opts{config} ){
   $app->print_config;
+}
+elsif( $opts{checkconfig} ){
+  $app->check_config;
 }
 else {
   my $monstr = $ARGV[0];

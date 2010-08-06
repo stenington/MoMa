@@ -84,6 +84,49 @@ sub _boxify {
   print "+" . "-" x $len . "+\n";
 }
 
+sub check_config {
+  my ($self) = @_;
+  my $xrandr_query = `xrandr -q`;
+  my $avail = $self->_parse_available( $xrandr_query );
+  print $self->_check_config( $avail );
+}
+
+sub _check_config {
+  my ($self, $avail) = @_;
+  my $msg = "";
+  foreach my $id (keys %{$self->portnames}) {
+    my $port = $self->portnames->{$id};
+    $msg .= "$id=$port: $port not connected\n" unless $avail->{$port};
+  }
+  foreach my $port (keys %{$self->modes}) {
+    my $mode = $self->modes->{$port};
+    unless( $avail->{$port}->{$mode} ){
+      $msg .= "$port=$mode: $mode not available for $port\n";
+      $msg .= "  available modes are ".join(", ", keys %{$avail->{$port}})."\n";
+    }
+  }
+  return $msg || "Looks good!\n";
+}
+
+sub _parse_available {
+  my ($self, $query) = @_;
+  my @lines = split('\n', $query);
+  my $avail = {};
+  my $current_port = "";
+  my $line = shift @lines;
+  while( $line ) {
+    if( $line =~ /^(\S+) connected/ ){
+      $current_port = $1;
+      $avail->{$current_port} = {};
+    }
+    elsif( $line =~ /^\s*(\d+x\d+)/ ){
+      $avail->{$current_port}->{$1}++;
+    }
+    $line = shift @lines;
+  }
+  return $avail;
+}
+
 sub parse_args {
   my ($self, $str) = @_;
   $DB::single=1;
