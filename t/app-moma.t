@@ -16,6 +16,15 @@ use App::Moma;
   dies_ok( sub{ $app->load_rc("t/.badmoma"); }, "dies on bad config");
 }
 
+# config 
+{
+  my $app = App::Moma->new();
+  $app->load_rc("t/.empty"); 
+  ok( !$app->verbosity(), "no verbosity set, default 0" );
+  $app->load_rc("t/.verbose"); 
+  ok( $app->verbosity(), "verbosity non-zero" );
+}
+
 # parse_args
 {
   my $app = App::Moma->new();

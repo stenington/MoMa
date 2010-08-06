@@ -31,6 +31,12 @@ has '_config' => (
   writer => '_set_config',
 );
 
+has 'verbosity' => (
+  is => 'rw',
+  isa => 'Int',
+  default => 0,
+);
+
 has 'modes' => (
   is => 'rw',
   isa => 'HashRef[Str]',
@@ -55,6 +61,7 @@ sub load_rc {
   my $cfg = Config::Tiny->read( $cfgfile ) or die "Unable to load $cfgfile: " . Config::Tiny::errstr;
   $self->portnames($cfg->{identifiers}) if $cfg->{identifiers};
   $self->modes($cfg->{modes}) if $cfg->{modes};
+  $self->verbosity($cfg->{config}->{verbosity}) if $cfg->{config} && $cfg->{config}->{verbosity};
 
   $self->_set_config( $cfg );
   $self->_config_file( $cfgfile );
@@ -115,7 +122,7 @@ sub _parse {
 sub run {
   my ($self) = @_;
   my $cmd = _build_cmd($self->ports_on, $self->ports_off, $self->modes);
-  print "I'm gonna call [$cmd]!\n";
+  print "I'm gonna call [$cmd]!\n" if $self->verbosity > 0;
   my $err = system $cmd;
   if( $err ){
     print STDERR "That didn't work, sorry.\n";
