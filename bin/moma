@@ -91,10 +91,12 @@ moma [--help|--config] [--verbose] monitor_string
     +i      turn on laptop screen
 
   Options:
-    help      Displays this help message
-    config    Displays the active configuration as above
-    verbose   Prints additional information while running.
-              Overrides the verbosity setting in your .moma.
+    help          Displays this help message
+    config        Displays the active configuration as above
+    checkconfig   Reports discrepancies between your .moma and what
+                  seems to be available
+    verbose       Prints additional information while running.
+                  Overrides the verbosity setting in your .moma.
 
 
 =head1 OPTIONS
@@ -121,6 +123,15 @@ Print the active configuration and exit. This should be defined in ~/.moma simil
   |  [modes]        |
   |  LVDS=1280x1024 |
   +-----------------+
+
+=item B<--checkconfig>
+
+Reports discrepancies between your configuration and what seems to be available. 
+This option will detect disconnected ports and invalid modes.
+
+=item B<--verbose>
+
+Tells moma to run verbosely. Outputs information about the underlying calls.
 
 =back
 
