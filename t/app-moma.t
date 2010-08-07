@@ -71,6 +71,15 @@ use App::Moma;
   ($on, $off) = $app->_parse("+a+b-x-y");
   is( $on, "ab", "extraneous +'s parse" );
   is( $off, "xy", "extraneous -'s parse" );
+
+  $app->load_rc( "t/.moma" ); # -* needs ids to be defined
+  ($on, $off) = $app->_parse("-*+l");
+  is( $on, "l", "one on" );
+  is( join('', sort(split('', $off))), "ir", "rest off");
+
+  ($on, $off) = $app->_parse("+r-*+l");
+  is( $on, "rl", "two on" );
+  is( join('', sort(split('', $off))), "i", "embedded -* off");
 }
 
 # build_cmd

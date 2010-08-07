@@ -81,14 +81,19 @@ moma [--help|--config] [--verbose] monitor_string
     -m[n...]      turn off m, n, etc.
 
   ...where valid identifiers (m, n, etc.) are defined 
-  in your ~/.moma file. (See --config option for details.)
+  in your ~/.moma file, or * as defined below. 
+  (See --config option for details on identifiers.)
 
-  +mn... assumes n to the right of m (not mirroring).
+  -*+mn...            turns off all identifiers not explicitly turned on (m, n, etc.).
+  +mn... or +m+n...   assumes n to the right of m (not mirroring).
 
   Examples:
-    +lr-i   dual external monitors
-    -l      turn off left monitor
-    +i      turn on laptop screen
+    For a docked laptop with two external monitors, side-by-side
+    (l=left, r=right, i=internal):
+    -i+lr or -*+lr    dual external monitors
+    -l                turn off left monitor
+    +i                turn on laptop screen
+    +i-*              laptop screen only
 
   Options:
     help          Displays this help message

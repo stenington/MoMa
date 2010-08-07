@@ -129,7 +129,6 @@ sub _parse_available {
 
 sub parse_args {
   my ($self, $str) = @_;
-  $DB::single=1;
   my ($on, $off) = $self->_parse($str);
   my $ports_on = $self->_map_to_portnames( $on );
   my $ports_off = $self->_map_to_portnames( $off );
@@ -152,12 +151,21 @@ sub _parse {
   my ($self, $str) = @_; 
   my $on = "";
   my $off = "";
-  die "Bad format" unless $str =~ /^(?:[+-][a-zA-Z]+)+$/;
+  die "Bad format" unless 
+    $str =~ /^(?:[+-][a-zA-Z]+)+$/        # basic case
+    || $str =~ /^(?:-\*|[+][a-zA-Z])+$/;  # -* syntax
   while ($str =~ /[+]([a-zA-Z]+)/g) {
     $on .= $1;
   }
   while ($str =~ /[-]([a-zA-Z]+)/g) {
     $off .= $1;
+  }
+  if( $str =~ /-\*/ ){
+    my %all = (map {($_, 1)} keys %{$self->portnames});
+    foreach my $id ( split('',$on) ) {
+      delete $all{$id};
+    }
+    $off = join("", keys %all);
   }
   return ($on, $off);
 }
