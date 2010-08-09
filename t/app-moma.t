@@ -77,10 +77,6 @@ use App::MomaMock;
   $app->parse_args("+a+b-c-d");
   $app->run();
   like( $app->cmd, qr/A.*?auto.*?B.*?auto/, "two on" );
-  TODO: {
-  local $TODO = "Failing test to motivate changes in this branch";
-  unlike( $app->cmd, qr/right-of|left-of/, "no side-by-side" );
-  };
   like( $app->cmd, qr/C.*?off.*?D.*?off/, "two off" );
 
   $app->parse_args("-*+a");
@@ -94,16 +90,35 @@ use App::MomaMock;
   like( $app->cmd, qr/(?:[CDE] --off.*?){3}/, "rest off" );
 }
 
-# build_cmd
+# mirroring
 {
-  # no modes specified
-  is( App::Moma::_build_cmd(["a"], undef, {}), "xrandr --output a --auto ", "one on (undef)" );
-  is( App::Moma::_build_cmd(["a"], [], {}), "xrandr --output a --auto ", "one on" );
-  is( App::Moma::_build_cmd([], ["a"], {}), "xrandr --output a --off ", "one off" );
-  is( App::Moma::_build_cmd(["a"], ["b"], {}), "xrandr --output a --auto --output b --off ", "one on, one off" );
-  like( App::Moma::_build_cmd(["a", "b"], ["c", "d"], undef), qr/--output a --auto --output b --auto.*--output c --off --output d --off/, "two on, two off" );
-  is( App::Moma::_build_cmd(["a", "b"], [], undef), "xrandr --output a --auto --output b --auto --right-of a ", "two on, b right of a" );
+  my $app = App::MomaMock->new( mirror => 1 );
+  $app->load_rc("t/.simple");
 
-  # modes
-  is( App::Moma::_build_cmd(["a"], undef, {a => "1280x1024"}), "xrandr --output a --mode 1280x1024 ", "screen mode specified" );
+  $app->parse_args("+ab+c");
+  $app->run();
+  unlike( $app->cmd, qr/right-of/, "not side-by-side" );
+  like( $app->cmd, qr/same-as/, "mirrored" );
+
+  $app = App::MomaMock->new( mirror => undef );
+  $app->load_rc("t/.simple");
+
+  $app->parse_args("+ab+c");
+  $app->run();
+  unlike( $app->cmd, qr/same-as/, "undef doesn't cause mirroring" );
+}
+
+# modes
+{
+  my $app = App::MomaMock->new();
+  $app->load_rc("t/.modes");
+
+  $app->parse_args("+ab");
+  $app->run();
+  like( $app->cmd, qr/A --mode 100x100/, "has first mode" );
+  like( $app->cmd, qr/B --mode 200x200/, "has second mode" );
+
+  $app->parse_args("+cd");
+  $app->run();
+  unlike( $app->cmd, qr/--mode/, "no modes" );
 }

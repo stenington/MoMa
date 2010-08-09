@@ -1,0 +1,9 @@
+[identifiers]
+a=A
+b=B
+c=C
+d=D
+
+[modes]
+A=100x100
+B=200x200

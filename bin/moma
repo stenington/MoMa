@@ -11,7 +11,8 @@ GetOptions(
   "help",
   "config",
   "checkconfig",
-  "verbose"
+  "verbose",
+  "mirror",
 );
 
 pod2usage({ 
@@ -20,7 +21,7 @@ pod2usage({
   -verbose => 1, 
 }) if $opts{help};
 
-my $app = App::Moma->new();
+my $app = App::Moma->new( mirror => $opts{mirror} );
 my $cfg = "~/.moma";
 try {
   $app->load_rc( $cfg );
@@ -85,7 +86,7 @@ moma [--help|--config] [--verbose] monitor_string
   (See --config option for details on identifiers.)
 
   -*+mn...            turns off all identifiers not explicitly turned on (m, n, etc.).
-  +mn... or +m+n...   assumes n to the right of m (not mirroring).
+  +mn... or +m+n...   assumes n to the right of m (side-by-side, not mirrored).
 
   Examples:
     For a docked laptop with two external monitors, side-by-side
@@ -102,6 +103,7 @@ moma [--help|--config] [--verbose] monitor_string
                   seems to be available
     verbose       Prints additional information while running.
                   Overrides the verbosity setting in your .moma.
+    mirror        Mirror outputs instead of left-to-right positioning.
 
 
 =head1 OPTIONS
@@ -137,6 +139,11 @@ This option will detect disconnected ports and invalid modes.
 =item B<--verbose>
 
 Tells moma to run verbosely. Outputs information about the underlying calls.
+
+=item B<--mirror>
+
+Tells moma to mirror all enabled outputs, useful in such scenarios as turning on a monitor and port for a projector.
+Without this the default is to assume the desktops should be side-by-side, left-to-right.
 
 =back
 

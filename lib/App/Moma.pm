@@ -37,6 +37,12 @@ has 'verbosity' => (
   default => 0,
 );
 
+has 'mirror' => (
+  is => 'rw',
+  isa => 'Bool',
+  default => 0,
+);
+
 has 'modes' => (
   is => 'rw',
   isa => 'HashRef[Str]',
@@ -172,7 +178,7 @@ sub _parse {
 
 sub run {
   my ($self) = @_;
-  my $cmd = _build_cmd($self->ports_on, $self->ports_off, $self->modes);
+  my $cmd = $self->_build_cmd($self->ports_on, $self->ports_off, $self->modes);
   $self->_call( $cmd );
 }
 
@@ -187,14 +193,15 @@ sub _call {
 }
 
 sub _build_cmd {
-  my ($on, $off, $modes) = @_;
+  my ($self, $on, $off, $modes) = @_;
   my $cmd = "xrandr ";
+  my $location = $self->mirror ? "--same-as" : "--right-of";
   my $prev;
   foreach my $mon (@$on) {
     my $mode = $modes->{$mon} ? "--mode " . $modes->{$mon} : "--auto";
     $cmd .= "--output $mon $mode ";
     if( $prev ){
-      $cmd .= "--right-of $prev ";
+      $cmd .= "$location $prev ";
     }
     $prev = $mon;
   }
