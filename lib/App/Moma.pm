@@ -173,6 +173,12 @@ sub _parse {
 sub run {
   my ($self) = @_;
   my $cmd = _build_cmd($self->ports_on, $self->ports_off, $self->modes);
+  $self->_call( $cmd );
+}
+
+sub _call {
+  my ($self, $cmd) = @_;
+
   print "I'm gonna call [$cmd]!\n" if $self->verbosity > 0;
   my $err = system $cmd;
   if( $err ){
